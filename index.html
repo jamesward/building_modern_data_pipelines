@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Building Modern Data Pipelines</title>
+
+    <meta name="author" content="James Ward">
+    <meta name="description" content="Our modern systems are no longer just simple CRUD apps.  We now need to deal with massive, distributed, real-time data systems that ingest potentially terabytes of data, support real-time and batch analytics, do machine learning, and support a host of web and mobile app interfaces.  This session will walk through architectural patterns and technologies for building these modern data pipelines.  You will learn about Apache Kafka, a variety of databases, and data processing frameworks like Spark.">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+    <style>
+      .reveal section img {
+        border: 1px solid #222;
+      }
+    </style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+          <h2>Building Modern Data Pipelines</h2>
+          <p>
+            <small><a href="http://jamesward.com">James Ward</a> | <a href="http://twitter.com/_JamesWard">@_JamesWard</a></small>
+            <br/>
+            <small><em>Platform Evangelist @ Salesforce.com</em></small>
+          </p>
+        </section>
+        <section>
+          <h3>Distributed Systems</h3>
+          <img src="assets/wires.jpg">
+        </section>
+        <section>
+          <img src="assets/no_idea.gif">
+        </section>
+        <section>
+          <h3>Modern Data Pipeline</h3>
+          <img src="assets/pipeline.png" style="margin-top: 0; border: none;">
+        </section>
+        <section>
+          <h3>Modern Data Pipelines</h3>
+
+          <ul>
+            <li class="fragment">Stream (or Flow) of Events (or Messages)</li>
+            <li class="fragment">Decoupled Producers and Consumers</li>
+            <li class="fragment">Batch &amp; Streaming Analytics</li>
+            <li class="fragment">Big Data Storage</li>
+            <li class="fragment">Machine Learning</li>
+            <li class="fragment">Maybe CQRS / Event Sourcing</li>
+          </ul>
+        </section>
+        <section>
+          <img src="assets/pipeline.png" style="border: none;">
+        </section>
+        <section>
+          <h3>Challenges</h3>
+
+          <ul>
+            <li class="fragment">Reliability</li>
+            <li class="fragment">Partitioning</li>
+            <li class="fragment">Guaranteed Delivery</li>
+            <li class="fragment">Variable Speed Producers &amp; Consumers</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Kafka Fundamentals</h3>
+
+          <img src="assets/kafka-diagram.png">
+
+          <p>
+            <ul>
+              <li class="fragment">Event Stream - Distributed &amp; Redundant</li>
+              <li class="fragment">Messaging System Semantics</li>
+              <li class="fragment">Clustering is Core</li>
+              <li class="fragment">Durability &amp; Ordering Guarantees</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Records</h3>
+
+          <img src="assets/append_only.png" width="50%">
+
+          <p>
+            <ul>
+              <li class="fragment">Name, Value, Timestamp</li>
+              <li class="fragment">Immutable</li>
+              <li class="fragment">Append Only</li>
+              <li class="fragment">Persisted</li>
+            </ul>
+          </p>
+
+          <p class="fragment">AKA: A Log</p>
+        </section>
+        <section>
+          <h3>Producers &amp; Consumers</h3>
+
+          <img src="assets/prod_cons.png">
+
+          <p>
+            <ul>
+              <li class="fragment">Broker = Node in the cluster</li>
+              <li class="fragment">Producer writes records to a broker</li>
+              <li class="fragment">Consumer reads records from a broker</li>
+              <li class="fragment">Leader / Follower for cluster distribution</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Topics &amp; Partitions</h3>
+
+          <img src="assets/log_anatomy.png">
+
+          <p>
+            <ul>
+              <li class="fragment">Topic = Logical name with 1 or more partitions</li>
+              <li class="fragment">Partitions are replicated</li>
+              <li class="fragment">Ordering is guaranteed for a partition</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Offsets</h3>
+
+          <img src="assets/offsets.png" width="50%">
+
+          <p>
+            <ul>
+              <li class="fragment">Unique sequential ID (per partition)</li>
+              <li class="fragment">Consumers track offsets</li>
+              <li class="fragment">Benefits: Replay, Different Speed Consumers, etc</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Heroku Uses Heroku Kafka</h3>
+
+          <img src="assets/heroku_metrics_dashboard.png">
+        </section>
+        <section>
+          <h3>Akka Streams</h3>
+
+          <img src="assets/akka-streams.png">
+
+          <p>
+            <ul>
+              <li class="fragment">Impl of Reactive Streams</li>
+              <li class="fragment">Source / Sink Stream Programming</li>
+              <li class="fragment">Back-pressure, etc</li>
+              <li class="fragment">Kafka Adapter: <br/>https://github.com/akka/reactive-kafka</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Play Framework</h3>
+
+          <img src="assets/play_full_color.svg" style="width: 50%">
+
+          <p>
+            <ul>
+              <li class="fragment">Built on Reactive Streams</li>
+              <li class="fragment">Stateless</li>
+              <li class="fragment">Scala &amp; Java</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Flink</h3>
+
+          <img src="assets/flink-stack-frontpage.png" style="width: 50%">
+
+          <p>
+            <ul>
+              <li class="fragment">Streaming Dataflow Engine</li>
+              <li class="fragment">Data transformations: filter, aggregate, windows, etc</li>
+              <li class="fragment">High throughput &amp; Low Latency</li>
+              <li class="fragment">Stream &amp; Batch</li>
+              <li class="fragment">Kafka Adapter</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Spark Streaming</h3>
+
+          <img src="assets/spark_streaming.png" style="width: 50%">
+
+          <p>
+            <ul>
+              <li class="fragment">Micro-Batch Dataflow Engine</li>
+              <li class="fragment">Data transformations: filter, aggregate, windows, etc</li>
+              <li class="fragment">Kafka Adapter</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>Cassandra</h3>
+
+          <img src="assets/cassandra_logo.png">
+
+          <p>
+            <ul>
+              <li class="fragment">Big Data</li>
+              <li class="fragment">NoSQL</li>
+              <li class="fragment">Spark Streaming Adapter</li>
+            </ul>
+          </p>
+        </section>
+        <section>
+          <h3>The Uber Example</h3>
+
+          <ul>
+            <li class="fragment">Producers: Driver &amp; Rider Location</li>
+            <li class="fragment">Driver needs Rider Location (and vise versa)</li>
+            <li class="fragment">Big Data store for all events</li>
+            <li class="fragment">Partition based on location</li>
+            <li class="fragment">Windowed Computations: Driver ETA per passenger &amp; location</li>
+            <li class="fragment">Batch Analytics: Wait time accuracy</li>
+            <li class="fragment">Machine Learning: Demand Prediction</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Demo Time!</h2>
+        </section>
+        <section>
+          <h2>Code!</h2>
+          <span style="font-size: 32px;">https://github.com/jamesward/koober</span>
+        </section>
+        <section>
+          <h2>Questions?</h2>
+          <br/>
+          <p>
+            Reach out: <a href="http://twitter.com/_JamesWard">@_JamesWard</a>
+          </p>
+        </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+        transition: 'none'
+			});
+		</script>
+	</body>
+</html>
